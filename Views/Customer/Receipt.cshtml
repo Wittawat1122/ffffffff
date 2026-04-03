@@ -1,0 +1,96 @@
+@model fffff.Models.Db.Order
+@{
+    ViewData["Title"] = $"Receipt #{Model.OrderId}";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receipt #@Model.OrderId</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: #f5f5f5; }
+        .receipt { max-width: 600px; margin: 50px auto; background: white; padding: 30px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .receipt-header { text-align: center; border-bottom: 2px dashed #28a745; padding-bottom: 20px; margin-bottom: 20px; }
+        .receipt-footer { text-align: center; border-top: 2px dashed #28a745; padding-top: 20px; margin-top: 20px; }
+        @@media print {
+            body { background: white; }
+            .receipt { box-shadow: none; margin: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="receipt-header">
+            <h2><i class="bi bi-shop text-success"></i> Football Boots Store</h2>
+            <p class="mb-0">E-RECEIPT</p>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-6">
+                <p class="mb-1"><strong>Order #:</strong> @Model.OrderId</p>
+                <p class="mb-1"><strong>Date:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="mb-0"><strong>Status:</strong> @Model.Status</p>
+            </div>
+            <div class="col-6 text-end">
+                <p class="mb-1"><strong>Customer:</strong> @Model.User?.Name</p>
+                <p class="mb-0"><strong>Email:</strong> @Model.User?.Email</p>
+            </div>
+        </div>
+        
+        <table class="table table-sm">
+            <thead>
+                <tr class="table-success">
+                    <th>Item</th>
+                    <th class="text-center">Size</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>Product #@item.ProductId</td>
+                        <td class="text-center">@item.Size</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">@item.Price?.ToString("N2")</td>
+                        <td class="text-end">@((item.Price * item.Quantity)?.ToString("N2"))</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="table-success">
+                    <th colspan="4" class="text-end">Total:</th>
+                    <th class="text-end">@Model.TotalPrice?.ToString("C")</th>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="mb-3">
+            <strong>Delivery Address:</strong><br />
+            <span class="badge bg-secondary">@Model.Address?.Label</span><br />
+            @Model.Address?.Address1
+        </div>
+        
+        <div class="receipt-footer">
+            <p class="mb-1"><strong>Thank you for your purchase!</strong></p>
+            <p class="text-muted mb-0">Keep shopping with us</p>
+        </div>
+        
+        <div class="text-center mt-4 no-print">
+            <button onclick="window.print()" class="btn btn-success me-2">
+                <i class="bi bi-printer"></i> Print Receipt
+            </button>
+            <a asp-action="Orders" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Orders
+            </a>
+        </div>
+    </div>
+</body>
+</html>

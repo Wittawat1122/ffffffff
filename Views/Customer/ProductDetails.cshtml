@@ -1,0 +1,94 @@
+@model fffff.Models.Db.Product
+@{
+    ViewData["Title"] = Model.Model;
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" class="img-fluid rounded shadow" alt="@Model.Model">
+        }
+        else
+        {
+            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <span class="badge bg-info mb-2">@Model.FieldType</span>
+        <h2>@Model.Brand @Model.Model</h2>
+        <h3 class="text-success">@Model.Price?.ToString("C")</h3>
+        <hr />
+        
+        <h5>Select Size:</h5>
+        <div class="row mb-3">
+            @foreach (var size in Model.ProductSizes.Where(s => s.Stock > 0))
+            {
+                <div class="col-3 mb-2">
+                    <button class="btn btn-outline-success w-100 size-btn" data-size="@size.Size" data-stock="@size.Stock">
+                        @size.Size
+                        <br /><small class="text-muted">(@size.Stock left)</small>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Quantity:</label>
+            <input type="number" id="quantity" class="form-control" value="1" min="1" style="width: 100px;" />
+        </div>
+
+        <button id="addToCart" class="btn btn-success btn-lg" disabled>
+            <i class="bi bi-cart-plus"></i> Add to Cart
+        </button>
+        
+        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left"></i> Back to Products
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedSize = null;
+        let selectedStock = 0;
+
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active', 'btn-success'));
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.add('btn-outline-success'));
+                this.classList.remove('btn-outline-success');
+                this.classList.add('btn-success', 'active');
+                selectedSize = this.dataset.size;
+                selectedStock = parseInt(this.dataset.stock);
+                document.getElementById('addToCart').disabled = false;
+            });
+        });
+
+        document.getElementById('addToCart').addEventListener('click', function() {
+            const qty = parseInt(document.getElementById('quantity').value);
+            if (qty > selectedStock) {
+                alert('Quantity exceeds available stock!');
+                return;
+            }
+            
+            const cartItem = {
+                productId: @Model.ProductId,
+                brand: '@Model.Brand',
+                model: '@Model.Model',
+                price: @Model.Price,
+                size: selectedSize,
+                quantity: qty
+            };
+            
+            let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            cart.push(cartItem);
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            
+            alert('Added to cart!');
+            window.location.href = '/Customer/Cart';
+        });
+    </script>
+}

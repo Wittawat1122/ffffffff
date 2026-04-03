@@ -1,0 +1,78 @@
+@model IEnumerable<fffff.Models.Db.Order>
+@{
+    ViewData["Title"] = "Financial Reports";
+}
+
+<h2><i class="bi bi-graph-up"></i> Financial Reports</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h4>@ViewBag.DailySales.ToString("C")</h4>
+                <p class="mb-0">Daily Sales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h4>@ViewBag.MonthlySales.ToString("C")</h4>
+                <p class="mb-0">Monthly Sales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h4>@ViewBag.TotalSales.ToString("C")</h4>
+                <p class="mb-0">Total Sales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h4>@ViewBag.CompletedOrders / @ViewBag.TotalOrders</h4>
+                <p class="mb-0">Orders (Completed/Total)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Recent Orders</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>#@order.OrderId</td>
+                            <td>@order.User?.Name</td>
+                            <td>@order.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@order.TotalPrice?.ToString("C")</td>
+                            <td>
+                                <span class="badge @(order.Status == "Completed" ? "bg-success" : order.Status == "Pending" ? "bg-warning" : "bg-info")">
+                                    @order.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

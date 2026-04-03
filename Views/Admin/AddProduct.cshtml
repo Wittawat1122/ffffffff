@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<h2><i class="bi bi-plus-circle"></i> Add New Product</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" name="brand" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Model</label>
+                            <input type="text" name="model" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Field Type</label>
+                            <select name="fieldType" class="form-select" required>
+                                <option value="Real Grass">Real Grass (หญ้าจริง)</option>
+                                <option value="Artificial Turf">Artificial Turf (หญ้าเทียม)</option>
+                                <option value="Indoor">Indoor (ฟุตซอล)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control" step="0.01" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image URL (optional)</label>
+                        <input type="text" name="imageUrl" class="form-control" />
+                    </div>
+                    
+                    <h5 class="mt-4">Sizes and Stock</h5>
+                    <div id="sizesContainer">
+                        <div class="row mb-2">
+                            <div class="col-md-5">
+                                <input type="number" name="sizes" class="form-control" placeholder="Size" required />
+                            </div>
+                            <div class="col-md-5">
+                                <input type="number" name="stocks" class="form-control" placeholder="Stock" required />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger" onclick="removeSizeRow(this)"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-success mb-3" onclick="addSizeRow()">
+                        <i class="bi bi-plus"></i> Add Size
+                    </button>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Save Product</button>
+                        <a asp-action="Inventory" class="btn btn-outline-secondary mt-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function addSizeRow() {
+            const container = document.getElementById('sizesContainer');
+            const row = document.createElement('div');
+            row.className = 'row mb-2';
+            row.innerHTML = `
+                <div class="col-md-5">
+                    <input type="number" name="sizes" class="form-control" placeholder="Size" required />
+                </div>
+                <div class="col-md-5">
+                    <input type="number" name="stocks" class="form-control" placeholder="Stock" required />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeSizeRow(this)"><i class="bi bi-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        
+        function removeSizeRow(btn) {
+            btn.closest('.row').remove();
+        }
+    </script>
+}

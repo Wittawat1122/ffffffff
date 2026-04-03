@@ -1,0 +1,59 @@
+@model IEnumerable<fffff.Models.Db.Shipment>
+@{
+    ViewData["Title"] = "Shipping Management";
+}
+
+<h2><i class="bi bi-truck"></i> Shipping Management</h2>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Current Status</th>
+                        <th>Tracking #</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var shipment in Model)
+                    {
+                        <tr>
+                            <td>#@shipment.OrderId</td>
+                            <td>@shipment.Order?.User?.Name</td>
+                            <td>
+                                <span class="badge @(shipment.Status == "Delivered" ? "bg-success" : shipment.Status == "Shipped" ? "bg-info" : "bg-warning")">
+                                    @shipment.Status
+                                </span>
+                            </td>
+                            <td>@shipment.TrackingNumber</td>
+                            <td>
+                                <form method="post" asp-action="UpdateShipment" class="row g-2">
+                                    <input type="hidden" name="shipmentId" value="@shipment.ShipmentId" />
+                                    <div class="col-5">
+                                        <select name="status" class="form-select form-select-sm">
+                                            <option value="Pending" selected="@(shipment.Status == "Pending" ? "selected" : null)">Pending</option>
+                                            <option value="Processing" selected="@(shipment.Status == "Processing" ? "selected" : null)">Processing</option>
+                                            <option value="Shipped" selected="@(shipment.Status == "Shipped" ? "selected" : null)">Shipped</option>
+                                            <option value="In Transit" selected="@(shipment.Status == "In Transit" ? "selected" : null)">In Transit</option>
+                                            <option value="Delivered" selected="@(shipment.Status == "Delivered" ? "selected" : null)">Delivered</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="text" name="trackingNumber" value="@shipment.TrackingNumber" class="form-control form-control-sm" placeholder="Tracking #" />
+                                    </div>
+                                    <div class="col-3">
+                                        <button type="submit" class="btn btn-success btn-sm w-100">Update</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

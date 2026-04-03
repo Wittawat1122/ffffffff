@@ -1,0 +1,51 @@
+@model fffff.Models.Db.Product
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h2><i class="bi bi-pencil"></i> Edit Product</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" name="brand" class="form-control" value="@Model.Brand" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Model</label>
+                            <input type="text" name="model" class="form-control" value="@Model.Model" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Field Type</label>
+                            <select name="fieldType" class="form-select" required>
+                                <option value="Real Grass" selected="@(Model.FieldType == "Real Grass" ? "selected" : null)">Real Grass (หญ้าจริง)</option>
+                                <option value="Artificial Turf" selected="@(Model.FieldType == "Artificial Turf" ? "selected" : null)">Artificial Turf (หญ้าเทียม)</option>
+                                <option value="Indoor" selected="@(Model.FieldType == "Indoor" ? "selected" : null)">Indoor (ฟุตซอล)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control" step="0.01" value="@Model.Price" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <input type="text" name="imageUrl" class="form-control" value="@Model.ImageUrl" />
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Update Product</button>
+                        <a asp-action="Inventory" class="btn btn-outline-secondary mt-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

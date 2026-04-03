@@ -1,0 +1,46 @@
+@model IEnumerable<fffff.Models.Db.Address>
+@{
+    ViewData["Title"] = "My Addresses";
+}
+
+<h2><i class="bi bi-geo-alt"></i> My Addresses</h2>
+
+<a asp-action="AddAddress" class="btn btn-success mb-3">
+    <i class="bi bi-plus-circle"></i> Add New Address
+</a>
+
+<div class="row">
+    @foreach (var address in Model)
+    {
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm @(address.IsDefault ? "border-success" : "")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge @(address.IsDefault ? "bg-success" : "bg-secondary") mb-2">
+                                @address.Label
+                                @if (address.IsDefault)
+                                {
+                                    <span> (Default)</span>
+                                }
+                            </span>
+                            <p class="card-text">@address.Address1</p>
+                        </div>
+                        <form method="post" asp-action="DeleteAddress" asp-route-id="@address.AddressId" onsubmit="return confirm('Delete this address?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You don't have any saved addresses yet. Add one to get started!
+    </div>
+}

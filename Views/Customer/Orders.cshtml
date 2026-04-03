@@ -1,0 +1,61 @@
+@model IEnumerable<fffff.Models.Db.Order>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<h2><i class="bi bi-bag"></i> My Orders</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Shipping</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>#@order.OrderId</td>
+                    <td>@order.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.TotalPrice?.ToString("C")</td>
+                    <td>
+                        <span class="badge @(order.Status == "Completed" ? "bg-success" : order.Status == "Pending" ? "bg-warning" : "bg-info")">
+                            @order.Status
+                        </span>
+                    </td>
+                    <td>
+                        @if (order.Shipments?.Any() == true)
+                        {
+                            <span class="badge bg-secondary">@order.Shipments.First().Status</span>
+                            @if (!string.IsNullOrEmpty(order.Shipments.First().TrackingNumber))
+                            {
+                                <br /><small class="text-muted">@order.Shipments.First().TrackingNumber</small>
+                            }
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Not shipped</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="OrderDetails" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-success">Details</a>
+                        <a asp-action="Receipt" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">Receipt</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You haven't placed any orders yet. <a asp-action="Index">Start shopping</a>!
+    </div>
+}

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Loyalty Points";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card bg-success text-white shadow-lg">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-award" style="font-size: 4rem;"></i>
+                <h2 class="mt-3">My Loyalty Points</h2>
+                <h1 class="display-1 fw-bold">@ViewBag.TotalPoints</h1>
+                <p class="lead">points available</p>
+            </div>
+        </div>
+        
+        <div class="card mt-4 shadow">
+            <div class="card-body">
+                <h5><i class="bi bi-info-circle"></i> How it works</h5>
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Earn 1 point for every 100 THB spent</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Use points as discount on your next purchase</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success"></i> Points are automatically added after order completion</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

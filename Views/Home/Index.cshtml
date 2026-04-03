@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center py-5">
+    <h1 class="display-3 fw-bold text-success"><i class="bi bi-shop"></i> Football Boots Store</h1>
+    <p class="lead">Premium Football Boots for Every Field</p>
+    <div class="mt-4">
+        <a asp-controller="Auth" asp-action="Login" class="btn btn-success btn-lg me-2">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+        </a>
+        <a asp-controller="Auth" asp-action="Register" class="btn btn-outline-success btn-lg">
+            <i class="bi bi-person-plus"></i> Register
+        </a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-boot text-success" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Premium Quality</h5>
+                <p>Top brands like Nike, Adidas, Puma for all field types</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-ticket-perforated text-success" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Discounts & Coupons</h5>
+                <p>Collect coupons and earn loyalty points with every purchase</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-truck text-success" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Fast Delivery</h5>
+                <p>Multiple delivery addresses with real-time tracking</p>
+            </div>
+        </div>
+    </div>
+</div>

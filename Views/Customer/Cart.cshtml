@@ -1,0 +1,191 @@
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h2><i class="bi bi-cart3"></i> Shopping Cart</h2>
+
+<div id="cartContainer">
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Your cart is empty. <a asp-action="Index">Continue shopping</a>
+    </div>
+</div>
+
+<div id="checkoutSection" style="display: none;">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Select Delivery Address</h5>
+                </div>
+                <div class="card-body">
+                    @if ((ViewBag.Addresses?.Count ?? 0) > 0)
+                    {
+                        @foreach (var address in ViewBag.Addresses)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="addressId" value="@address.AddressId" id="addr_@address.AddressId" @(address.IsDefault ? "checked" : "") />
+                                <label class="form-check-label" for="addr_@address.AddressId">
+                                    <span class="badge @(address.IsDefault ? "bg-success" : "bg-secondary")">@address.Label</span>
+                                    <br />@address.Address1
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            No addresses found. <a asp-action="AddAddress">Add an address</a> first.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Apply Coupon</h5>
+                </div>
+                <div class="card-body">
+                    <select id="couponSelect" class="form-select">
+                        <option value="">No Coupon</option>
+                        @foreach (var coupon in ViewBag.Coupons ?? new List<fffff.Models.Db.UserCoupon>())
+                        {
+                            <option value="@coupon.Id" data-discount="@coupon.Coupon?.DiscountPercent">
+                                @coupon.Coupon?.Code - @coupon.Coupon?.DiscountPercent% OFF
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">฿0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Discount:</span>
+                        <span id="discount">-฿0.00</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <h5>Total:</h5>
+                        <h5 id="total" class="text-success">฿0.00</h5>
+                    </div>
+                    <button id="checkoutBtn" class="btn btn-success w-100 mt-3" @(ViewBag.Addresses?.Count == 0 ? "disabled" : "")>
+                        <i class="bi bi-credit-card"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let cart = [];
+        
+        function renderCart() {
+            cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+            const container = document.getElementById('cartContainer');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Your cart is empty. <a href="/Customer">Continue shopping</a>
+                    </div>`;
+                document.getElementById('checkoutSection').style.display = 'none';
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table">';
+            html += '<thead><tr><th>Product</th><th>Size</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr></thead><tbody>';
+            
+            let subtotal = 0;
+            cart.forEach((item, index) => {
+                const total = item.price * item.quantity;
+                subtotal += total;
+                html += `<tr>
+                    <td>${item.brand} ${item.model}</td>
+                    <td>${item.size}</td>
+                    <td>฿${item.price}</td>
+                    <td>${item.quantity}</td>
+                    <td>฿${total.toFixed(2)}</td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            document.getElementById('checkoutSection').style.display = 'block';
+            
+            updateSummary(subtotal);
+        }
+        
+        function removeItem(index) {
+            cart.splice(index, 1);
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        }
+        
+        function updateSummary(subtotal) {
+            const couponSelect = document.getElementById('couponSelect');
+            const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+            const discount = selectedOption.dataset.discount ? (subtotal * parseInt(selectedOption.dataset.discount) / 100) : 0;
+            const total = subtotal - discount;
+            
+            document.getElementById('subtotal').textContent = '฿' + subtotal.toFixed(2);
+            document.getElementById('discount').textContent = '-฿' + discount.toFixed(2);
+            document.getElementById('total').textContent = '฿' + total.toFixed(2);
+            
+            return { subtotal, discount, total };
+        }
+        
+        document.getElementById('couponSelect')?.addEventListener('change', function() {
+            let subtotal = 0;
+            cart.forEach(item => subtotal += item.price * item.quantity);
+            updateSummary(subtotal);
+        });
+        
+        document.getElementById('checkoutBtn')?.addEventListener('click', async function() {
+            const addressId = document.querySelector('input[name="addressId"]:checked')?.value;
+            if (!addressId) {
+                alert('Please select a delivery address');
+                return;
+            }
+            
+            const summary = updateSummary(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+            const couponId = document.getElementById('couponSelect').value;
+            
+            const items = cart.map(item => `${item.productId},${item.size},${item.quantity},${item.price}`).join(';');
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Customer/Checkout';
+            
+            const fields = {
+                addressId: addressId,
+                userCouponId: couponId || '',
+                totalPrice: summary.total,
+                items: items
+            };
+            
+            for (const [key, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        });
+        
+        renderCart();
+    </script>
+}

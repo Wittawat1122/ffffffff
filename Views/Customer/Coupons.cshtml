@@ -1,0 +1,75 @@
+@model IEnumerable<fffff.Models.Db.UserCoupon>
+@{
+    ViewData["Title"] = "My Coupons";
+}
+
+<h2><i class="bi bi-ticket-perforated"></i> My Coupons</h2>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h4>Available Coupons</h4>
+        <div class="row">
+            @foreach (var coupon in ViewBag.AvailableCoupons ?? new List<fffff.Models.Db.Coupon>())
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-light shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">@coupon.Code</h5>
+                            <p class="card-text">
+                                <span class="badge bg-danger">@coupon.DiscountPercent% OFF</span>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">Expires: @coupon.ExpiryDate?.ToString("dd/MM/yyyy")</small>
+                            </p>
+                            <form method="post" asp-action="CollectCoupon">
+                                <input type="hidden" name="couponId" value="@coupon.CouponId" />
+                                <button type="submit" class="btn btn-success w-100">Collect Coupon</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        @if ((ViewBag.AvailableCoupons?.Count ?? 0) == 0)
+        {
+            <div class="alert alert-info">No available coupons at the moment.</div>
+        }
+    </div>
+</div>
+
+<hr />
+
+<h4>My Collected Coupons</h4>
+<div class="row">
+    @foreach (var userCoupon in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm @(userCoupon.IsUsed == true ? "opacity-50" : "border-success")">
+                <div class="card-body">
+                    <h5 class="card-title">@userCoupon.Coupon?.Code</h5>
+                    <p class="card-text">
+                        <span class="badge bg-success">@userCoupon.Coupon?.DiscountPercent% OFF</span>
+                        @if (userCoupon.IsUsed == true)
+                        {
+                            <span class="badge bg-secondary">Used</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Available</span>
+                        }
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">Expires: @userCoupon.Coupon?.ExpiryDate?.ToString("dd/MM/yyyy")</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You haven't collected any coupons yet.
+    </div>
+}

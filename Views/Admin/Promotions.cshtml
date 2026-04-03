@@ -1,0 +1,111 @@
+@model IEnumerable<fffff.Models.Db.Promotion>
+@{
+    ViewData["Title"] = "Promotion Management";
+}
+
+<h2><i class="bi bi-megaphone"></i> Promotion Management</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Add Promotion</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="AddPromotion">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" name="startDate" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" name="endDate" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Discount (%)</label>
+                        <input type="number" name="discountPercent" class="form-control" min="1" max="100" required />
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Add Promotion</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Add Coupon</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="AddCoupon">
+                    <div class="mb-3">
+                        <label class="form-label">Code</label>
+                        <input type="text" name="code" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Discount (%)</label>
+                        <input type="number" name="discountPercent" class="form-control" min="1" max="100" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="date" name="expiryDate" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Coupon</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h4>Active Promotions</h4>
+<div class="row">
+    @foreach (var promo in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@promo.Title</h5>
+                    <p class="card-text">
+                        <span class="badge bg-danger">@promo.DiscountPercent% OFF</span>
+                    </p>
+                    <p class="text-muted">
+                        <i class="bi bi-calendar"></i> @promo.StartDate?.ToString("dd/MM/yyyy") - @promo.EndDate?.ToString("dd/MM/yyyy")
+                    </p>
+                    <form method="post" asp-action="DeletePromotion" asp-route-id="@promo.PromotionId" onsubmit="return confirm('Delete this promotion?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h4 class="mt-4">All Coupons</h4>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Expiry</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var coupon in ViewBag.Coupons ?? new List<fffff.Models.Db.Coupon>())
+            {
+                <tr>
+                    <td><code>@coupon.Code</code></td>
+                    <td>@coupon.DiscountPercent%</td>
+                    <td>@coupon.ExpiryDate?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

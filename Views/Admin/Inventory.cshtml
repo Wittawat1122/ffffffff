@@ -1,0 +1,63 @@
+@model IEnumerable<fffff.Models.Db.Product>
+@{
+    ViewData["Title"] = "Inventory Management";
+}
+
+<h2><i class="bi bi-box-seam"></i> Inventory Management</h2>
+
+<a asp-action="AddProduct" class="btn btn-success mb-3">
+    <i class="bi bi-plus-circle"></i> Add New Product
+</a>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Field Type</th>
+                        <th>Price</th>
+                        <th>Sizes & Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@product.Brand</td>
+                            <td>@product.Model</td>
+                            <td><span class="badge bg-info">@product.FieldType</span></td>
+                            <td>@product.Price?.ToString("C")</td>
+                            <td>
+                                @foreach (var size in product.ProductSizes)
+                                {
+                                    <form method="post" asp-action="UpdateStock" class="d-inline-block me-2 mb-1">
+                                        <input type="hidden" name="sizeId" value="@size.SizeId" />
+                                        <div class="input-group input-group-sm" style="width: 140px;">
+                                            <span class="input-group-text">@size.Size</span>
+                                            <input type="number" name="newStock" value="@size.Stock" class="form-control" style="width: 50px;" />
+                                            <button type="submit" class="btn btn-outline-success"><i class="bi bi-check"></i></button>
+                                        </div>
+                                    </form>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="EditProduct" asp-route-id="@product.ProductId" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" asp-action="DeleteProduct" asp-route-id="@product.ProductId" class="d-inline" onsubmit="return confirm('Delete this product?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

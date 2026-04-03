@@ -1,0 +1,87 @@
+@model IEnumerable<fffff.Models.Db.Product>
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h2><i class="bi bi-grid-3x3-gap"></i> Football Boots</h2>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="fieldType" class="form-select">
+                    <option value="">All Field Types</option>
+                    @foreach (var ft in ViewBag.FieldTypes ?? new List<string>())
+                    {
+                        @if (ft == ViewBag.CurrentFieldType)
+                        {
+                            <option value="@ft" selected>@ft</option>
+                        }
+                        else
+                        {
+                            <option value="@ft">@ft</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="brand" class="form-select">
+                    <option value="">All Brands</option>
+                    @foreach (var b in ViewBag.Brands ?? new List<string>())
+                    {
+                        @if (b == ViewBag.CurrentBrand)
+                        {
+                            <option value="@b" selected>@b</option>
+                        }
+                        else
+                        {
+                            <option value="@b">@b</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search products..." value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100"><i class="bi bi-search"></i> Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Model" style="height: 200px; object-fit: cover;">
+                }
+                else
+                {
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                }
+                <div class="card-body">
+                    <span class="badge bg-info mb-2">@product.FieldType</span>
+                    <h5 class="card-title">@product.Brand</h5>
+                    <p class="card-text text-muted">@product.Model</p>
+                    <h6 class="text-success">@product.Price?.ToString("C")</h6>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Available sizes: @(string.Join(", ", product.ProductSizes.Select(ps => $"{ps.Size}({ps.Stock})")))
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a asp-action="ProductDetails" asp-route-id="@product.ProductId" class="btn btn-outline-success w-100">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
