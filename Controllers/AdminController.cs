@@ -376,7 +376,7 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditUser(int userId, string name, string email, string role)
+        public IActionResult EditUser(int userId, string name, string email, string role, string newPassword)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
@@ -387,8 +387,14 @@ namespace fffff.Controllers
             user.Email = email;
             user.Role = role;
 
+            if (!string.IsNullOrWhiteSpace(newPassword))
+            {
+                user.Password = newPassword;
+            }
+
             _context.SaveChanges();
-            return RedirectToAction("Users");
+            TempData["Success"] = "บันทึกข้อมูลสำเร็จ";
+            return RedirectToAction("EditUser", new { id = userId });
         }
 
         [HttpPost]

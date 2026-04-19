@@ -11,6 +11,14 @@
     <h4 class="mb-0">Edit User</h4>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="row">
     <div class="col-md-7 col-lg-5">
         <div class="card shadow">
@@ -57,7 +65,7 @@
                         <input type="email" name="email" class="form-control" value="@Model.Email" required placeholder="Email address" />
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-shield me-1 text-secondary"></i> Role
                         </label>
@@ -66,6 +74,20 @@
                             <option value="admin">Admin</option>
                         </select>
                         <script>document.getElementById('roleSelect').value = '@Model.Role';</script>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-lock me-1 text-secondary"></i> New Password
+                        </label>
+                        <input type="password" name="newPassword" class="form-control"
+                               placeholder="Leave blank to keep current password" />
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยนรหัสผ่าน
+                        </div>
                     </div>
 
                     <div class="d-grid">
