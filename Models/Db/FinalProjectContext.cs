@@ -161,7 +161,7 @@ public partial class FinalProjectContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("brand");
             entity.Property(e => e.FieldType)
-                .HasMaxLength(10)
+                .HasMaxLength(50)
                 .HasColumnName("field_type");
             entity.Property(e => e.ImageUrl).HasColumnName("image_url");
             entity.Property(e => e.Model)
