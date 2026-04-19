@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using fffff.Models.Db;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,10 +22,10 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public IActionResult Login(string username, string password)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username);
+            var user = _context.Users
+                .FirstOrDefault(u => u.Username == username);
 
             if (user == null)
             {
@@ -72,7 +71,7 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string username, string name, string email, string password, string confirmPassword)
+        public IActionResult Register(string username, string name, string email, string password, string confirmPassword)
         {
             if (password != confirmPassword)
             {
@@ -80,13 +79,13 @@ namespace fffff.Controllers
                 return View();
             }
 
-            if (await _context.Users.AnyAsync(u => u.Username == username))
+            if (_context.Users.Any(u => u.Username == username))
             {
                 ViewBag.Error = "Username already exists";
                 return View();
             }
 
-            if (await _context.Users.AnyAsync(u => u.Email == email))
+            if (_context.Users.Any(u => u.Email == email))
             {
                 ViewBag.Error = "Email already exists";
                 return View();
@@ -103,7 +102,7 @@ namespace fffff.Controllers
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             // create loyalty point
             var loyaltyPoint = new LoyaltyPoint
@@ -113,7 +112,7 @@ namespace fffff.Controllers
             };
 
             _context.LoyaltyPoints.Add(loyaltyPoint);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Login");
         }

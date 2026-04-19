@@ -19,7 +19,7 @@ namespace fffff.Controllers
         }
 
         // 1.4 ระบบเลือกชมสินค้า - Product browsing by field type and brand
-        public async Task<IActionResult> Index(string? fieldType, string? brand, string? search)
+        public IActionResult Index(string? fieldType, string? brand, string? search)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
@@ -37,23 +37,23 @@ namespace fffff.Controllers
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(p => p.Model!.Contains(search) || p.Brand!.Contains(search));
 
-            ViewBag.FieldTypes = await _context.Products.Select(p => p.FieldType).Distinct().ToListAsync();
-            ViewBag.Brands = await _context.Products.Select(p => p.Brand).Distinct().ToListAsync();
+            ViewBag.FieldTypes = _context.Products.Select(p => p.FieldType).Distinct().ToList();
+            ViewBag.Brands = _context.Products.Select(p => p.Brand).Distinct().ToList();
             ViewBag.CurrentFieldType = fieldType;
             ViewBag.CurrentBrand = brand;
             ViewBag.Search = search;
 
-            return View(await query.ToListAsync());
+            return View(query.ToList());
         }
 
-        public async Task<IActionResult> ProductDetails(int id)
+        public IActionResult ProductDetails(int id)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var product = await _context.Products
+            var product = _context.Products
                 .Include(p => p.ProductSizes)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                .FirstOrDefault(p => p.ProductId == id);
 
             if (product == null) return NotFound();
 
@@ -61,14 +61,14 @@ namespace fffff.Controllers
         }
 
         // 1.2 ระบบจัดการที่อยู่ - Address management
-        public async Task<IActionResult> Addresses()
+        public IActionResult Addresses()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var addresses = await _context.Addresses
+            var addresses = _context.Addresses
                 .Where(a => a.UserId == userId)
-                .ToListAsync();
+                .ToList();
 
             return View(addresses);
         }
@@ -83,16 +83,16 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAddress(string address, string label, bool isDefault)
+        public IActionResult AddAddress(string address, string label, bool isDefault)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
             if (isDefault)
             {
-                var existingDefaults = await _context.Addresses
+                var existingDefaults = _context.Addresses
                     .Where(a => a.UserId == userId && a.IsDefault)
-                    .ToListAsync();
+                    .ToList();
                 foreach (var addr in existingDefaults)
                     addr.IsDefault = false;
             }
@@ -106,57 +106,57 @@ namespace fffff.Controllers
             };
 
             _context.Addresses.Add(newAddress);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Addresses");
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteAddress(int id)
+        public IActionResult DeleteAddress(int id)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var address = await _context.Addresses
-                .FirstOrDefaultAsync(a => a.AddressId == id && a.UserId == userId);
+            var address = _context.Addresses
+                .FirstOrDefault(a => a.AddressId == id && a.UserId == userId);
 
             if (address != null)
             {
                 _context.Addresses.Remove(address);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Addresses");
         }
 
         // 1.1 ระบบจัดการคูปอง - Coupon management
-        public async Task<IActionResult> Coupons()
+        public IActionResult Coupons()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var myCoupons = await _context.UserCoupons
+            var myCoupons = _context.UserCoupons
                 .Include(uc => uc.Coupon)
                 .Where(uc => uc.UserId == userId)
-                .ToListAsync();
+                .ToList();
 
-            var availableCoupons = await _context.Coupons
+            var availableCoupons = _context.Coupons
                 .Where(c => c.ExpiryDate > DateOnly.FromDateTime(DateTime.Now) &&
                     !_context.UserCoupons.Any(uc => uc.UserId == userId && uc.CouponId == c.CouponId))
-                .ToListAsync();
+                .ToList();
 
             ViewBag.AvailableCoupons = availableCoupons;
             return View(myCoupons);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CollectCoupon(int couponId)
+        public IActionResult CollectCoupon(int couponId)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var existing = await _context.UserCoupons
-                .FirstOrDefaultAsync(uc => uc.UserId == userId && uc.CouponId == couponId);
+            var existing = _context.UserCoupons
+                .FirstOrDefault(uc => uc.UserId == userId && uc.CouponId == couponId);
 
             if (existing == null)
             {
@@ -167,28 +167,28 @@ namespace fffff.Controllers
                     IsUsed = false
                 };
                 _context.UserCoupons.Add(userCoupon);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Coupons");
         }
 
         // 1.3 ระบบสะสมคะแนน - Loyalty Points
-        public async Task<IActionResult> LoyaltyPoints()
+        public IActionResult LoyaltyPoints()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var points = await _context.LoyaltyPoints
+            var points = _context.LoyaltyPoints
                 .Where(lp => lp.UserId == userId)
-                .SumAsync(lp => lp.Points);
+                .Sum(lp => lp.Points);
 
             ViewBag.TotalPoints = points;
             return View();
         }
 
         // Shopping Cart & Orders
-        public async Task<IActionResult> Cart()
+        public IActionResult Cart()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
@@ -196,22 +196,22 @@ namespace fffff.Controllers
             var cartItems = HttpContext.Session.GetString($"Cart_{userId}");
             ViewBag.CartItems = cartItems;
 
-            var addresses = await _context.Addresses
+            var addresses = _context.Addresses
                 .Where(a => a.UserId == userId)
-                .ToListAsync();
+                .ToList();
             ViewBag.Addresses = addresses;
 
-            var coupons = await _context.UserCoupons
+            var coupons = _context.UserCoupons
                 .Include(uc => uc.Coupon)
                 .Where(uc => uc.UserId == userId && uc.IsUsed == false)
-                .ToListAsync();
+                .ToList();
             ViewBag.Coupons = coupons;
 
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Checkout(int addressId, int? userCouponId, decimal totalPrice, string items)
+        public IActionResult Checkout(int addressId, int? userCouponId, decimal totalPrice, string items)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
@@ -226,7 +226,7 @@ namespace fffff.Controllers
             };
 
             _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             // Add order items
             var itemList = items.Split(';');
@@ -246,8 +246,8 @@ namespace fffff.Controllers
                     _context.OrderItems.Add(orderItem);
 
                     // Reduce stock
-                    var productSize = await _context.ProductSizes
-                        .FirstOrDefaultAsync(ps => ps.ProductId == orderItem.ProductId && ps.Size == orderItem.Size);
+                    var productSize = _context.ProductSizes
+                        .FirstOrDefault(ps => ps.ProductId == orderItem.ProductId && ps.Size == orderItem.Size);
                     if (productSize != null)
                     {
                         productSize.Stock -= orderItem.Quantity;
@@ -258,7 +258,7 @@ namespace fffff.Controllers
             // Mark coupon as used
             if (userCouponId.HasValue)
             {
-                var userCoupon = await _context.UserCoupons.FindAsync(userCouponId);
+                var userCoupon = _context.UserCoupons.Find(userCouponId);
                 if (userCoupon != null)
                     userCoupon.IsUsed = true;
             }
@@ -281,7 +281,7 @@ namespace fffff.Controllers
             };
             _context.Shipments.Add(shipment);
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             // Clear cart
             HttpContext.Session.Remove($"Cart_{userId}");
@@ -289,47 +289,47 @@ namespace fffff.Controllers
             return RedirectToAction("OrderDetails", new { id = order.OrderId });
         }
 
-        public async Task<IActionResult> Orders()
+        public IActionResult Orders()
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var orders = await _context.Orders
+            var orders = _context.Orders
                 .Include(o => o.Address)
                 .Include(o => o.Shipments)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
             return View(orders);
         }
 
-        public async Task<IActionResult> OrderDetails(int id)
+        public IActionResult OrderDetails(int id)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.Address)
                 .Include(o => o.OrderItems)
                 .Include(o => o.Shipments)
-                .FirstOrDefaultAsync(o => o.OrderId == id && o.UserId == userId);
+                .FirstOrDefault(o => o.OrderId == id && o.UserId == userId);
 
             if (order == null) return NotFound();
 
             return View(order);
         }
 
-        public async Task<IActionResult> Receipt(int id)
+        public IActionResult Receipt(int id)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.Address)
                 .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.OrderId == id && o.UserId == userId);
+                .FirstOrDefault(o => o.OrderId == id && o.UserId == userId);
 
             if (order == null) return NotFound();
 

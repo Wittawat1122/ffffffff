@@ -25,34 +25,34 @@ namespace fffff.Controllers
         }
 
         // Admin Dashboard
-        public async Task<IActionResult> Dashboard()
+        public IActionResult Dashboard()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
             // Statistics for dashboard
-            ViewBag.TotalOrders = await _context.Orders.CountAsync();
-            ViewBag.TotalProducts = await _context.Products.CountAsync();
-            ViewBag.TotalUsers = await _context.Users.CountAsync();
-            ViewBag.PendingShipments = await _context.Shipments.CountAsync(s => s.Status == "Pending");
+            ViewBag.TotalOrders = _context.Orders.Count();
+            ViewBag.TotalProducts = _context.Products.Count();
+            ViewBag.TotalUsers = _context.Users.Count();
+            ViewBag.PendingShipments = _context.Shipments.Count(s => s.Status == "Pending");
 
             // Recent orders
-            var recentOrders = await _context.Orders
+            var recentOrders = _context.Orders
                 .Include(o => o.User)
                 .OrderByDescending(o => o.CreatedAt)
                 .Take(10)
-                .ToListAsync();
+                .ToList();
 
             return View(recentOrders);
         }
 
         // 2.2 ระบบบริหารคลังสินค้า - Inventory Management
-        public async Task<IActionResult> Inventory()
+        public IActionResult Inventory()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var products = await _context.Products
+            var products = _context.Products
                 .Include(p => p.ProductSizes)
-                .ToListAsync();
+                .ToList();
 
             return View(products);
         }
@@ -65,7 +65,7 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct(string brand, string model, string fieldType, decimal price, string? imageUrl, int[] sizes, int[] stocks)
+        public IActionResult AddProduct(string brand, string model, string fieldType, decimal price, string? imageUrl, int[] sizes, int[] stocks)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
@@ -79,7 +79,7 @@ namespace fffff.Controllers
             };
 
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             // Add sizes
             for (int i = 0; i < sizes.Length; i++)
@@ -92,19 +92,19 @@ namespace fffff.Controllers
                 };
                 _context.ProductSizes.Add(productSize);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Inventory");
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditProduct(int id)
+        public IActionResult EditProduct(int id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var product = await _context.Products
+            var product = _context.Products
                 .Include(p => p.ProductSizes)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                .FirstOrDefault(p => p.ProductId == id);
 
             if (product == null) return NotFound();
 
@@ -112,11 +112,11 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProduct(int productId, string brand, string model, string fieldType, decimal price, string? imageUrl)
+        public IActionResult EditProduct(int productId, string brand, string model, string fieldType, decimal price, string? imageUrl)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var product = await _context.Products.FindAsync(productId);
+            var product = _context.Products.Find(productId);
             if (product == null) return NotFound();
 
             product.Brand = brand;
@@ -125,59 +125,59 @@ namespace fffff.Controllers
             product.Price = price;
             product.ImageUrl = imageUrl;
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return RedirectToAction("Inventory");
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStock(int sizeId, int newStock)
+        public IActionResult UpdateStock(int sizeId, int newStock)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var productSize = await _context.ProductSizes.FindAsync(sizeId);
+            var productSize = _context.ProductSizes.Find(sizeId);
             if (productSize != null)
             {
                 productSize.Stock = newStock;
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Inventory");
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public IActionResult DeleteProduct(int id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var product = await _context.Products.FindAsync(id);
+            var product = _context.Products.Find(id);
             if (product != null)
             {
                 _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Inventory");
         }
 
         // 2.1 ระบบจัดการขนส่ง - Shipping Management
-        public async Task<IActionResult> Shipments()
+        public IActionResult Shipments()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var shipments = await _context.Shipments
+            var shipments = _context.Shipments
                 .Include(s => s.Order)
                 .ThenInclude(o => o!.User)
-                .ToListAsync();
+                .ToList();
 
             return View(shipments);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateShipment(int shipmentId, string status, string trackingNumber)
+        public IActionResult UpdateShipment(int shipmentId, string status, string trackingNumber)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var shipment = await _context.Shipments.FindAsync(shipmentId);
+            var shipment = _context.Shipments.Find(shipmentId);
             if (shipment != null)
             {
                 shipment.Status = status;
@@ -186,36 +186,36 @@ namespace fffff.Controllers
                 // Update order status if shipment is delivered
                 if (status == "Delivered")
                 {
-                    var order = await _context.Orders.FindAsync(shipment.OrderId);
+                    var order = _context.Orders.Find(shipment.OrderId);
                     if (order != null)
                         order.Status = "Completed";
                 }
 
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Shipments");
         }
 
         // 2.3 ระบบจัดการโปรโมชั่น - Promotion Management
-        public async Task<IActionResult> Promotions()
+        public IActionResult Promotions()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var promotions = await _context.Promotions
+            var promotions = _context.Promotions
                 .OrderByDescending(p => p.StartDate)
-                .ToListAsync();
+                .ToList();
 
-            var coupons = await _context.Coupons
+            var coupons = _context.Coupons
                 .OrderByDescending(c => c.CouponId)
-                .ToListAsync();
+                .ToList();
 
             ViewBag.Coupons = coupons;
             return View(promotions);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPromotion(string title, DateOnly startDate, DateOnly endDate, int discountPercent)
+        public IActionResult AddPromotion(string title, DateOnly startDate, DateOnly endDate, int discountPercent)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
@@ -228,13 +228,13 @@ namespace fffff.Controllers
             };
 
             _context.Promotions.Add(promotion);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Promotions");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCoupon(string code, int discountPercent, DateOnly expiryDate)
+        public IActionResult AddCoupon(string code, int discountPercent, DateOnly expiryDate)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
@@ -246,52 +246,52 @@ namespace fffff.Controllers
             };
 
             _context.Coupons.Add(coupon);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Promotions");
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeletePromotion(int id)
+        public IActionResult DeletePromotion(int id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var promotion = await _context.Promotions.FindAsync(id);
+            var promotion = _context.Promotions.Find(id);
             if (promotion != null)
             {
                 _context.Promotions.Remove(promotion);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Promotions");
         }
 
         // 2.4 ระบบรายงานรายรับ-รายจ่าย - Financial Reports
-        public async Task<IActionResult> Reports()
+        public IActionResult Reports()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
             // Daily sales
             var today = DateOnly.FromDateTime(DateTime.Now);
-            var dailySales = await _context.Orders
+            var dailySales = _context.Orders
                 .Where(o => o.Status == "Completed" && DateOnly.FromDateTime(o.CreatedAt!.Value) == today)
-                .SumAsync(o => o.TotalPrice);
+                .Sum(o => o.TotalPrice);
 
             // Monthly sales
             var monthStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var monthlySales = await _context.Orders
+            var monthlySales = _context.Orders
                 .Where(o => o.Status == "Completed" && o.CreatedAt >= monthStart)
-                .SumAsync(o => o.TotalPrice);
+                .Sum(o => o.TotalPrice);
 
             // Total sales
-            var totalSales = await _context.Orders
+            var totalSales = _context.Orders
                 .Where(o => o.Status == "Completed")
-                .SumAsync(o => o.TotalPrice);
+                .Sum(o => o.TotalPrice);
 
             // Order counts
-            var totalOrders = await _context.Orders.CountAsync();
-            var completedOrders = await _context.Orders.CountAsync(o => o.Status == "Completed");
-            var pendingOrders = await _context.Orders.CountAsync(o => o.Status == "Pending");
+            var totalOrders = _context.Orders.Count();
+            var completedOrders = _context.Orders.Count(o => o.Status == "Completed");
+            var pendingOrders = _context.Orders.Count(o => o.Status == "Pending");
 
             ViewBag.DailySales = dailySales ?? 0;
             ViewBag.MonthlySales = monthlySales ?? 0;
@@ -301,39 +301,39 @@ namespace fffff.Controllers
             ViewBag.PendingOrders = pendingOrders;
 
             // Recent completed orders for the report table
-            var recentOrders = await _context.Orders
+            var recentOrders = _context.Orders
                 .Include(o => o.User)
                 .OrderByDescending(o => o.CreatedAt)
                 .Take(20)
-                .ToListAsync();
+                .ToList();
 
             return View(recentOrders);
         }
 
         // Order Management
-        public async Task<IActionResult> Orders()
+        public IActionResult Orders()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var orders = await _context.Orders
+            var orders = _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.Address)
                 .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
             return View(orders);
         }
 
-        public async Task<IActionResult> OrderDetails(int id)
+        public IActionResult OrderDetails(int id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.Address)
                 .Include(o => o.OrderItems)
                 .Include(o => o.Shipments)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+                .FirstOrDefault(o => o.OrderId == id);
 
             if (order == null) return NotFound();
 
@@ -341,15 +341,15 @@ namespace fffff.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
+        public IActionResult UpdateOrderStatus(int orderId, string status)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var order = await _context.Orders.FindAsync(orderId);
+            var order = _context.Orders.Find(orderId);
             if (order != null)
             {
                 order.Status = status;
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             return RedirectToAction("Orders");
