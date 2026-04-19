@@ -354,5 +354,56 @@ namespace fffff.Controllers
 
             return RedirectToAction("Orders");
         }
+
+        // User Management
+        public IActionResult Users()
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+
+            var users = _context.Users.ToList();
+            return View(users);
+        }
+
+        [HttpGet]
+        public IActionResult EditUser(int id)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(id);
+            if (user == null) return NotFound();
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult EditUser(int userId, string name, string email, string role)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(userId);
+            if (user == null) return NotFound();
+
+            user.Name = name;
+            user.Email = email;
+            user.Role = role;
+
+            _context.SaveChanges();
+            return RedirectToAction("Users");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteUser(int id)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Users");
+        }
     }
 }

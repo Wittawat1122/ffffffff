@@ -335,5 +335,73 @@ namespace fffff.Controllers
 
             return View(order);
         }
+
+        // Change Password
+        [HttpPost]
+        public IActionResult ChangePassword(string oldPassword, string newPassword, string confirmPassword)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(userId);
+            if (user == null) return NotFound();
+
+            if (user.Password != oldPassword)
+            {
+                TempData["PasswordError"] = "รหัสผ่านเก่าไม่ถูกต้อง";
+                return RedirectToAction("EditProfile");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["PasswordError"] = "รหัสผ่านใหม่ไม่ตรงกัน";
+                return RedirectToAction("EditProfile");
+            }
+
+            if (newPassword.Length < 6)
+            {
+                TempData["PasswordError"] = "รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร";
+                return RedirectToAction("EditProfile");
+            }
+
+            user.Password = newPassword;
+            _context.SaveChanges();
+
+            TempData["PasswordSuccess"] = "เปลี่ยนรหัสผ่านสำเร็จ";
+            return RedirectToAction("EditProfile");
+        }
+
+        // Edit Profile
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(userId);
+            if (user == null) return NotFound();
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult EditProfile(string name, string email)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return RedirectToAction("Login", "Auth");
+
+            var user = _context.Users.Find(userId);
+            if (user == null) return NotFound();
+
+            user.Name = name;
+            user.Email = email;
+
+            _context.SaveChanges();
+
+            HttpContext.Session.SetString("Name", name);
+
+            TempData["Success"] = "Profile updated successfully";
+            return RedirectToAction("EditProfile");
+        }
     }
 }

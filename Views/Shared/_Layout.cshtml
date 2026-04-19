@@ -42,6 +42,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Admin" asp-action="Reports">Reports</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Users">Users</a>
+                            </li>
                         }
                         else if (Context.Session.GetInt32("UserId") != null)
                         {
@@ -59,6 +62,16 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Customer" asp-action="LoyaltyPoints">Points</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Customer" asp-action="Cart">
+                                    <i class="bi bi-cart3"></i> Cart
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Customer" asp-action="EditProfile">
+                                    <i class="bi bi-person-gear"></i> Profile
+                                </a>
                             </li>
                         }
                         else

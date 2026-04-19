@@ -19920,6 +19920,16 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\PC\\Desktop\\stud\\ffffffff\\Views\\Admin\\EditUser.cshtml",
+      "TargetPath": "Views\\Admin\\EditUser.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\PC\\Desktop\\stud\\ffffffff\\Views\\Admin\\Users.cshtml",
+      "TargetPath": "Views\\Admin\\Users.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\PC\\Desktop\\stud\\ffffffff\\Views\\_ViewStart.cshtml",
       "TargetPath": "Views\\_ViewStart.cshtml",
       "FileKind": "mvc"
@@ -19937,6 +19947,11 @@
     {
       "FilePath": "c:\\Users\\PC\\Desktop\\stud\\ffffffff\\Views\\Customer\\Receipt.cshtml",
       "TargetPath": "Views\\Customer\\Receipt.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\PC\\Desktop\\stud\\ffffffff\\Views\\Customer\\EditProfile.cshtml",
+      "TargetPath": "Views\\Customer\\EditProfile.cshtml",
       "FileKind": "mvc"
     },
     {
